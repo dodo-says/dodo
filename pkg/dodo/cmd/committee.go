@@ -9,5 +9,7 @@ func NewCommitteeCommand() *cobra.Command {
 	}
 	cmd.AddCommand(NewCommitteeAddCommand())
 	cmd.AddCommand(NewCommitteeListCommand())
+	cmd.AddCommand(NewCommitteeRemoveCommand())
+	cmd.AddCommand(NewCommitteeMemberCommand())
 	return cmd
 }
