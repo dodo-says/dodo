@@ -4,7 +4,7 @@ import "github.com/spf13/cobra"
 
 func NewCommitteeMemberCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "committee-member",
+		Use:   "member",
 		Short: "Committee member commands",
 	}
 

@@ -5,8 +5,7 @@ import "github.com/spf13/cobra"
 func NewRecordCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "record",
-		Short: "record",
-		Long:  `record`,
+		Short: "Operations about record",
 	}
 
 	cmd.AddCommand(NewRecordAddCommand())
