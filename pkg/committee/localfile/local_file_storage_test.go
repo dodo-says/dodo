@@ -3,10 +3,11 @@ package localfile
 import (
 	"context"
 	"fmt"
-	"github.com/dodo-says/dodo/pkg/committee"
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/dodo-says/dodo/pkg/committee"
 )
 
 func TestLocalFileCommitteeStorage_write_then_read(t *testing.T) {
@@ -56,12 +57,12 @@ func TestLocalFileCommitteeStorage_write_then_read(t *testing.T) {
 			tempDir, err := os.MkdirTemp(os.TempDir(), "local_file_storage_test")
 
 			s := NewCommitteeStorage(fmt.Sprintf("%s/%s", tempDir, "committee.json"))
-			err = s.write(context.TODO(), *tt.want)
+			err = s.storage.write(context.TODO(), *tt.want)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("write() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			got, err := s.read(context.TODO())
+			got, err := s.storage.read(context.TODO())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("read() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -120,12 +121,12 @@ func TestLocalFileCommitteeMemberStorage_write_then_read(t *testing.T) {
 			tempDir, err := os.MkdirTemp(os.TempDir(), "local_file_storage_test")
 
 			s := NewCommitteeMemberStorage(fmt.Sprintf("%s/%s", tempDir, "committee_member.json"))
-			err = s.write(context.TODO(), *tt.want)
+			err = s.storage.write(context.TODO(), *tt.want)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("write() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			got, err := s.read(context.TODO())
+			got, err := s.storage.read(context.TODO())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("read() error = %v, wantErr %v", err, tt.wantErr)
 				return

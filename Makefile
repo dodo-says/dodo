@@ -8,3 +8,7 @@ dodo:
 .PHONY: clean
 clean:
 	rm -rf bin
+
+.PHONY: test
+test:
+	go test -covermode=atomic ./...
