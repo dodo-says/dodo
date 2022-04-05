@@ -2,7 +2,7 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-func NewRecordListCommand() *cobra.Command {
+func NewRecordListCommand(*GlobalOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List records",

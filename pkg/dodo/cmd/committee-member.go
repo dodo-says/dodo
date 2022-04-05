@@ -2,7 +2,7 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-func NewCommitteeMemberCommand() *cobra.Command {
+func NewCommitteeMemberCommand(*GlobalOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "member",
 		Short: "Committee member commands",

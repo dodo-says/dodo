@@ -2,7 +2,7 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-func NewCommitteeProposalCommand() *cobra.Command {
+func NewCommitteeProposalCommand(*GlobalOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "proposal",
 		Short: "Committee proposal commands",

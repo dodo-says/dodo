@@ -2,7 +2,7 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-func NewRecordDecryptCommand() *cobra.Command {
+func NewRecordDecryptCommand(*GlobalOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "decrypt",
 		Short: "Decrypts a record",

@@ -6,8 +6,6 @@ import (
 	"os"
 	"reflect"
 	"testing"
-
-	"github.com/dodo-says/dodo/pkg/committee"
 )
 
 func TestLocalFileCommitteeStorage_write_then_read(t *testing.T) {
@@ -22,7 +20,7 @@ func TestLocalFileCommitteeStorage_write_then_read(t *testing.T) {
 
 			want: &committeeStorageModel{
 				Length: 0,
-				Data:   []committee.Committee{},
+				Data:   []CommitteeEntity{},
 			},
 			wantErr: false,
 		},
@@ -39,7 +37,7 @@ func TestLocalFileCommitteeStorage_write_then_read(t *testing.T) {
 			name: "several",
 			want: &committeeStorageModel{
 				Length: 2,
-				Data: []committee.Committee{
+				Data: []CommitteeEntity{
 					{
 						Name:        "Alice",
 						Description: "Alice is the first committee",
@@ -85,7 +83,7 @@ func TestLocalFileCommitteeMemberStorage_write_then_read(t *testing.T) {
 
 			want: &committeeMemberStorageModel{
 				Length: 0,
-				Data:   []memberEntity{},
+				Data:   []MemberEntity{},
 			},
 			wantErr: false,
 		},
@@ -101,7 +99,7 @@ func TestLocalFileCommitteeMemberStorage_write_then_read(t *testing.T) {
 			name: "several",
 			want: &committeeMemberStorageModel{
 				Length: 2,
-				Data: []memberEntity{
+				Data: []MemberEntity{
 					{
 						Name:            "Alice",
 						Description:     "Alice is the first committee",

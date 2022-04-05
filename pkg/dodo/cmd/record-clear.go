@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewRecordClearCommand() *cobra.Command {
+func NewRecordClearCommand(*GlobalOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "clear",
 		Short: "Clear all records",

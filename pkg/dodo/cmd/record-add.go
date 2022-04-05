@@ -2,7 +2,7 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-func NewRecordAddCommand() *cobra.Command {
+func NewRecordAddCommand(*GlobalOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add",
 		Short: "Add a new record",

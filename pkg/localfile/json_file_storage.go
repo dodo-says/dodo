@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/pkg/errors"
 	"os"
+	"path"
 	"sync"
 )
 
@@ -31,7 +32,7 @@ func (s *jsonFileStorage[T]) read(ctx context.Context) (*T, error) {
 		return s.zeroValueConstructor(), nil
 	}
 	if err != nil {
-		return nil, errors.Wrap(err, "lookup committee storage file")
+		return nil, errors.Wrap(err, "lookup storage file")
 	}
 	// return zero value if file is empty
 	if stat.Size() == 0 {
@@ -41,25 +42,31 @@ func (s *jsonFileStorage[T]) read(ctx context.Context) (*T, error) {
 	// read content from file
 	content, err := os.ReadFile(s.storagePath)
 	if err != nil {
-		return nil, errors.Wrap(err, "read committee storage file")
+		return nil, errors.Wrap(err, "read storage file")
 	}
 	result := s.zeroValueConstructor()
 	err = json.Unmarshal(content, result)
 	if err != nil {
-		return nil, errors.Wrap(err, "unmarshal committee storage file")
+		return nil, errors.Wrap(err, "unmarshal storage file")
 	}
 	return result, nil
 }
+
 func (s *jsonFileStorage[T]) write(ctx context.Context, data T) error {
 	s.rwlock.Lock()
 	defer s.rwlock.Unlock()
 	content, err := json.Marshal(data)
 	if err != nil {
-		return errors.Wrap(err, "marshal committee storage file")
+		return errors.Wrap(err, "marshal storage file")
+	}
+
+	err = os.MkdirAll(path.Dir(s.storagePath), 0o755)
+	if err != nil {
+		return errors.Wrap(err, "create storage directory")
 	}
 	err = os.WriteFile(s.storagePath, content, 0o644)
 	if err != nil {
-		return errors.Wrap(err, "write committee storage file")
+		return errors.Wrap(err, "write storage file")
 	}
 	return nil
 }

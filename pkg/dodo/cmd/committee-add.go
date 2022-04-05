@@ -1,12 +1,14 @@
 package cmd
 
 import (
+	"context"
+	"github.com/dodo-says/dodo/pkg/committee"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
-func NewCommitteeAddCommand() *cobra.Command {
-	options := NewCommitteeAddOptions("", "")
+func NewCommitteeAddCommand(globalOptions *GlobalOptions) *cobra.Command {
+	options := NewCommitteeAddOptions("")
 
 	cmd := &cobra.Command{
 		Use:                   "add [-d <description> | --description <description>] committee-name",
@@ -29,7 +31,13 @@ dodo committee add "dodo-says"
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-
+			ctx := context.TODO()
+			committeeService := BootstrapCommitteeService(globalOptions.StorageDir)
+			newCommittee := committee.NewCommittee(args[0], options.Description)
+			err := committeeService.AddCommittee(ctx, *newCommittee)
+			if err != nil {
+				return errors.Wrap(err, "create committee")
+			}
 			return nil
 		},
 	}
@@ -41,12 +49,10 @@ dodo committee add "dodo-says"
 
 // CommitteeAddOptions is the options for the committee add command.
 type CommitteeAddOptions struct {
-	// CommitteeName is the required name for this committee.
-	CommitteeName string
 	// Description is the optional description for this committee.
 	Description string
 }
 
-func NewCommitteeAddOptions(committeeName string, description string) *CommitteeAddOptions {
-	return &CommitteeAddOptions{CommitteeName: committeeName, Description: description}
+func NewCommitteeAddOptions(description string) *CommitteeAddOptions {
+	return &CommitteeAddOptions{Description: description}
 }

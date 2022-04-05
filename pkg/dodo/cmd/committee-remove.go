@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewCommitteeRemoveCommand() *cobra.Command {
+func NewCommitteeRemoveCommand(*GlobalOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove",
 		Short: "Remove a member from a committee",

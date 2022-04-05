@@ -2,16 +2,16 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-func NewRecordCommand() *cobra.Command {
+func NewRecordCommand(globalOptions *GlobalOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "record",
 		Short: "Operations about record",
 	}
 
-	cmd.AddCommand(NewRecordAddCommand())
-	cmd.AddCommand(NewRecordListCommand())
-	cmd.AddCommand(NewRecordDecryptCommand())
-	cmd.AddCommand(NewRecordClearCommand())
+	cmd.AddCommand(NewRecordAddCommand(globalOptions))
+	cmd.AddCommand(NewRecordListCommand(globalOptions))
+	cmd.AddCommand(NewRecordDecryptCommand(globalOptions))
+	cmd.AddCommand(NewRecordClearCommand(globalOptions))
 
 	return cmd
 }

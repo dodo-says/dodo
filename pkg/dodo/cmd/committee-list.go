@@ -2,7 +2,7 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-func NewCommitteeListCommand() *cobra.Command {
+func NewCommitteeListCommand(*GlobalOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List all committees",
