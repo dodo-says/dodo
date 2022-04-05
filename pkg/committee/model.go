@@ -10,6 +10,8 @@ type Committee struct {
 type Member struct {
 	// The required unique name for this member.
 	Name string
+	// The required name of which committee belongs to.
+	CommitteeName string
 	// The optional description for this member.
 	Description string
 	// The required public key for this member.

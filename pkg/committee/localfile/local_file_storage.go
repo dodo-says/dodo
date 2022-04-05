@@ -2,8 +2,10 @@ package localfile
 
 import (
 	"context"
+	"encoding/base64"
 
 	"github.com/dodo-says/dodo/pkg/committee"
+	"github.com/pkg/errors"
 )
 
 type committeeStorageModel struct {
@@ -49,6 +51,8 @@ func (s *CommitteeStorage) AddCommittee(ctx context.Context, committee committee
 type memberEntity struct {
 	// The required unique name for this member. See Member.Name.
 	Name string
+	// The required name of which committee belongs to. See Member.CommitteeName.
+	CommitteeName string
 	// The optional description for this member. See Member.Description.
 	Description string
 	// The required public key for this member but base64-ed. See Member.PublicKey.
@@ -76,4 +80,86 @@ func NewCommitteeMemberStorage(storagePath string) *CommitteeMemberStorage {
 	return &CommitteeMemberStorage{
 		storage: storage,
 	}
+}
+
+func (s *CommitteeMemberStorage) AddMember(ctx context.Context, member committee.Member) error {
+	storage, err := s.storage.read(ctx)
+	if err != nil {
+		return err
+	}
+	base64edPublicKey := base64.StdEncoding.EncodeToString(member.PublicKey)
+	storage.Data = append(storage.Data, memberEntity{
+		Name:            member.Name,
+		CommitteeName:   member.CommitteeName,
+		Description:     member.Description,
+		PublicKeyBase64: base64edPublicKey,
+	})
+	return s.storage.write(ctx, *storage)
+}
+
+func (s *CommitteeMemberStorage) GetMember(ctx context.Context, committeeName string, memberName string) (*committee.Member, error) {
+	storage, err := s.storage.read(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, member := range storage.Data {
+		if member.CommitteeName == committeeName && member.Name == memberName {
+			publicKey, err := base64.StdEncoding.DecodeString(member.PublicKeyBase64)
+			if err != nil {
+				return nil, errors.Wrap(err, "decode public key")
+			}
+			return &committee.Member{
+				Name:          member.Name,
+				CommitteeName: member.CommitteeName,
+				Description:   member.Description,
+				PublicKey:     publicKey,
+			}, nil
+		}
+	}
+	return nil, errors.Errorf("member %s in committee %s not found", memberName, committeeName)
+}
+
+func (s *CommitteeMemberStorage) ListMemberInCommittee(ctx context.Context, committeeName string) ([]committee.Member, error) {
+	storage, err := s.storage.read(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var members []committee.Member
+	for _, member := range storage.Data {
+		if member.CommitteeName == committeeName {
+			publicKey, err := base64.StdEncoding.DecodeString(member.PublicKeyBase64)
+			if err != nil {
+				return nil, errors.Wrap(err, "decode public key")
+			}
+			members = append(members, committee.Member{
+				Name:          member.Name,
+				CommitteeName: member.CommitteeName,
+				Description:   member.Description,
+				PublicKey:     publicKey,
+			})
+		}
+	}
+	return members, nil
+}
+
+func (s *CommitteeMemberStorage) ListMember(ctx context.Context) ([]committee.Member, error) {
+	storage, err := s.storage.read(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var members []committee.Member
+	for _, member := range storage.Data {
+		publicKey, err := base64.StdEncoding.DecodeString(member.PublicKeyBase64)
+		if err != nil {
+			return nil, errors.Wrap(err, "decode public key")
+		}
+		members = append(members, committee.Member{
+			Name:          member.Name,
+			CommitteeName: member.CommitteeName,
+			Description:   member.Description,
+			PublicKey:     publicKey,
+		})
+	}
+	return members, nil
 }
