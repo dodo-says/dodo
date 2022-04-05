@@ -1,13 +1,27 @@
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"context"
+	"github.com/pkg/errors"
+	"github.com/spf13/cobra"
+)
 
-func NewCommitteeListCommand(*GlobalOptions) *cobra.Command {
+func NewCommitteeListCommand(globalOptions *GlobalOptions) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
 		Short: "List all committees",
-		Run: func(cmd *cobra.Command, args []string) {
-
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			ctx := context.TODO()
+			committeeService := BootstrapCommitteeService(globalOptions.StorageDir)
+			committees, err := committeeService.ListCommittee(ctx)
+			if err != nil {
+				return errors.Wrap(err, "list committees")
+			}
+			for _, committee := range committees {
+				cmd.Println(committee.Name)
+			}
+			return nil
 		},
 	}
 	return cmd

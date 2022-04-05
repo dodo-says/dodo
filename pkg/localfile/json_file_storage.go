@@ -3,10 +3,11 @@ package localfile
 import (
 	"context"
 	"encoding/json"
-	"github.com/pkg/errors"
 	"os"
 	"path"
 	"sync"
+
+	"github.com/pkg/errors"
 )
 
 type jsonFileStorage[T any] struct {

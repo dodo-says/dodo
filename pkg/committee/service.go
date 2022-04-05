@@ -8,14 +8,14 @@ import (
 
 type Service interface {
 	AddCommittee(ctx context.Context, committee Committee) error
-	GetCommittee(ctx context.Context, committeeName string) (Committee, error)
+	GetCommittee(ctx context.Context, committeeName string) (*Committee, error)
 	ListCommittee(ctx context.Context) ([]Committee, error)
 	RemoveCommittee(ctx context.Context, committeeName string) error
 
 	AddMemberToCommittee(ctx context.Context, committeeName string, member Member) error
 	ListMemberOfCommittee(ctx context.Context, committeeName string) ([]Member, error)
 	RemoveMemberFromCommittee(ctx context.Context, committeeName string, memberName string) error
-	GetMemberOfCommittee(ctx context.Context, committeeName string, memberName string) (Member, error)
+	GetMemberOfCommittee(ctx context.Context, committeeName string, memberName string) (*Member, error)
 }
 
 type ServiceImpl struct {
@@ -48,14 +48,35 @@ func (s *ServiceImpl) AddCommittee(ctx context.Context, committee Committee) err
 	return nil
 }
 
-func (s *ServiceImpl) GetCommittee(ctx context.Context, committeeName string) (Committee, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *ServiceImpl) GetCommittee(ctx context.Context, committeeName string) (*Committee, error) {
+	entities, err := s.committeeStorage.ListCommittee(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "list committee")
+	}
+	for _, e := range entities {
+		if e.Name == committeeName {
+			return &Committee{
+				Name:        e.Name,
+				Description: e.Description,
+			}, nil
+		}
+	}
+	return nil, errors.Errorf("committee %s not found", committeeName)
 }
 
 func (s *ServiceImpl) ListCommittee(ctx context.Context) ([]Committee, error) {
-	//TODO implement me
-	panic("implement me")
+	entities, err := s.committeeStorage.ListCommittee(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "list committee")
+	}
+	var committees []Committee
+	for _, e := range entities {
+		committees = append(committees, Committee{
+			Name:        e.Name,
+			Description: e.Description,
+		})
+	}
+	return committees, nil
 }
 
 func (s *ServiceImpl) RemoveCommittee(ctx context.Context, committeeName string) error {
@@ -78,7 +99,7 @@ func (s *ServiceImpl) RemoveMemberFromCommittee(ctx context.Context, committeeNa
 	panic("implement me")
 }
 
-func (s *ServiceImpl) GetMemberOfCommittee(ctx context.Context, committeeName string, memberName string) (Member, error) {
+func (s *ServiceImpl) GetMemberOfCommittee(ctx context.Context, committeeName string, memberName string) (*Member, error) {
 	//TODO implement me
 	panic("implement me")
 }
