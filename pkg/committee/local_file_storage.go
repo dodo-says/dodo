@@ -77,7 +77,15 @@ func (s *LocalFileCommitteeStorage) write(ctx context.Context, storageModel loca
 }
 
 func (s *LocalFileCommitteeStorage) ListCommittee(ctx context.Context) ([]Committee, error) {
-	panic("not implemented")
+	storage, err := s.read(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return storage.Data, nil
+}
+
+func (s *LocalFileCommitteeStorage) AddCommittee() {
+
 }
 
 type LocalFileCommitteeMemberStorage struct {
