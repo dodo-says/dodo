@@ -2,15 +2,25 @@ package cmd
 
 import "github.com/spf13/cobra"
 
-func NewCommitteeMemberCommand(*GlobalOptions) *cobra.Command {
+func NewCommitteeMemberCommand(globalOption *GlobalOptions) (*cobra.Command, error) {
 	cmd := &cobra.Command{
-		Use:   "member",
-		Short: "Committee member commands",
+		Use:   "committee-member",
+		Short: "dodo committee member commands",
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+
+		},
 	}
 
-	cmd.AddCommand(NewCommitteeMemberAddCommand())
-	cmd.AddCommand(NewCommitteeMemberRemoveCommand())
-	cmd.AddCommand(NewCommitteeMemberListCommand())
+	memberAddCommand, err := NewCommitteeMemberAddCommand(globalOption)
+	if err != nil {
+		return nil, err
+	}
+	cmd.SilenceUsage = true
 
-	return cmd
+	cmd.AddCommand(memberAddCommand)
+	cmd.AddCommand(NewCommitteeMemberRemoveCommand(globalOption))
+	cmd.AddCommand(NewCommitteeMemberListCommand(globalOption))
+
+	return cmd, nil
 }

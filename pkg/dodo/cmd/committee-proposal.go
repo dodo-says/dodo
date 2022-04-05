@@ -4,7 +4,7 @@ import "github.com/spf13/cobra"
 
 func NewCommitteeProposalCommand(*GlobalOptions) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "proposal",
+		Use:   "committee-proposal",
 		Short: "Committee proposal commands",
 	}
 

@@ -9,24 +9,24 @@ the secret.
 - [ ] client-server structure
 - [ ] Provide this service as public API
 
-## `dodo` example
+## Basic Usage
 
-`dodo committee add`
+`dodo committee add dodo-says`
 
-`dodo committee list`
+`dodo committee member add --committee dodo-says --public-key-file=./alice-public.pem alice`
 
-`dodo committee remove`
+`dodo committee member add --committee dodo-says --public-key-file=./bob-public.pem bob`
 
-`dodo committee member add`
+`dodo committee member add --committee dodo-says --public-key-file=./charlie-public.pem charlie`
 
-`dodo committee member list`
+`dodo record add --committee dodo-says "STRRL is the laziest dodo"`
 
-`dodo committee member remove`
+`dodo committee proposal create --committee dodo-says --record-id=<uuid>`
 
-`dodo record add`
+`dodo committee proposal get --committee dodo-says --member-name=alice --record-id=<uuid> slice | <openssl decrypt>`
 
-`dodo record decrypt`
+`dodo committee proposal approve --committee dodo-says --member-name=alice --record-id=<uuid> <content-of-decrypted-slice>`
 
-`dodo record list`
+> same as charlie
 
-`dodo record clear`
+`dodo record read --committee dodo-says --record-id=<uuid>`

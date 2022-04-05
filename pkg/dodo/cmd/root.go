@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func NewRootCommand() *cobra.Command {
+func NewRootCommand() (*cobra.Command, error) {
 	globalOptions := &GlobalOptions{}
 	rootCommand := &cobra.Command{
 		Use:          "dodo",
@@ -15,10 +15,28 @@ func NewRootCommand() *cobra.Command {
 	}
 
 	rootCommand.PersistentFlags().StringVar(&globalOptions.StorageDir, "storage-path", mustDefaultStorageDir(), "The path to the storage")
-	rootCommand.AddCommand(NewCommitteeCommand(globalOptions))
+
+	// dodo committee
+	committeeCommand, err := NewCommitteeCommand(globalOptions)
+	if err != nil {
+		return nil, err
+	}
+	rootCommand.AddCommand(committeeCommand)
+
+	// dodo committee-member
+	committeeMemberCommand, err := NewCommitteeMemberCommand(globalOptions)
+	if err != nil {
+		return nil, err
+	}
+	rootCommand.AddCommand(committeeMemberCommand)
+
+	// dodo committee-proposal
+	rootCommand.AddCommand(NewCommitteeProposalCommand(globalOptions))
+
+	// dodo record
 	rootCommand.AddCommand(NewRecordCommand(globalOptions))
 
-	return rootCommand
+	return rootCommand, nil
 }
 
 type GlobalOptions struct {
