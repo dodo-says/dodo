@@ -20,7 +20,11 @@ func NewCommitteeMemberCommand(globalOption *GlobalOptions) (*cobra.Command, err
 
 	cmd.AddCommand(memberAddCommand)
 	cmd.AddCommand(NewCommitteeMemberRemoveCommand(globalOption))
-	cmd.AddCommand(NewCommitteeMemberListCommand(globalOption))
+	listCommand, err := NewCommitteeMemberListCommand(globalOption)
+	if err != nil {
+		return nil, err
+	}
+	cmd.AddCommand(listCommand)
 
 	return cmd, nil
 }

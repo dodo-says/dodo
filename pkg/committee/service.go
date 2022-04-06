@@ -2,6 +2,8 @@ package committee
 
 import (
 	"context"
+	"encoding/base64"
+
 	"github.com/dodo-says/dodo/pkg/localfile"
 	"github.com/pkg/errors"
 )
@@ -85,13 +87,41 @@ func (s *ServiceImpl) RemoveCommittee(ctx context.Context, committeeName string)
 }
 
 func (s *ServiceImpl) AddMemberToCommittee(ctx context.Context, committeeName string, member Member) error {
-	//TODO implement me
-	panic("implement me")
+	base64edPubKey := base64.StdEncoding.EncodeToString(member.PublicKey)
+
+	entity := localfile.MemberEntity{
+		Name:            member.Name,
+		Description:     member.Description,
+		CommitteeName:   committeeName,
+		PublicKeyBase64: base64edPubKey,
+	}
+	err := s.memberStorage.AddMember(ctx, entity)
+	if err != nil {
+		return errors.Wrapf(err, "add member %s to committee %s", member.Name, committeeName)
+	}
+	return nil
 }
 
 func (s *ServiceImpl) ListMemberOfCommittee(ctx context.Context, committeeName string) ([]Member, error) {
-	//TODO implement me
-	panic("implement me")
+	members, err := s.memberStorage.ListMemberInCommittee(ctx, committeeName)
+	if err != nil {
+		return nil, errors.Wrapf(err, "list member of committee %s", committeeName)
+	}
+
+	var result []Member
+	for _, m := range members {
+
+		pubKey, err := base64.StdEncoding.DecodeString(m.PublicKeyBase64)
+		if err != nil {
+			return nil, errors.Wrapf(err, "decode public key of member %s in committee %s", m.Name, committeeName)
+		}
+		result = append(result, Member{
+			Name:        m.Name,
+			Description: m.Description,
+			PublicKey:   pubKey,
+		})
+	}
+	return result, nil
 }
 
 func (s *ServiceImpl) RemoveMemberFromCommittee(ctx context.Context, committeeName string, memberName string) error {
