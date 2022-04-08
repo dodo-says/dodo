@@ -40,6 +40,9 @@ dodo committee add "dodo-says"
 			}
 			return nil
 		},
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
 	}
 
 	cmd.Flags().StringVarP(&options.Description, "description", "d", "", "Optional description for this committee")
