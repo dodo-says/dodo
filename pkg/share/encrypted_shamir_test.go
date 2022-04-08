@@ -1,4 +1,4 @@
-package secret
+package share
 
 import (
 	"bytes"
@@ -70,4 +70,8 @@ func TestPoC_SplitEncryptDecryptCombine(t *testing.T) {
 	message, err := Combine([][]byte{plainSliceForAlice, plainSliceForBob, plainSliceForCharlie})
 	require.NoError(t, err, "combining slices")
 	assert.Equalf(t, secretMessage, string(message), "combined slices")
+
+	anotherMessage, err := Combine([][]byte{plainSliceForAlice, plainSliceForCharlie})
+	require.NoError(t, err, "combining slices")
+	assert.Equalf(t, secretMessage, string(anotherMessage), "combined slices")
 }

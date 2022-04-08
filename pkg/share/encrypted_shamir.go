@@ -1,4 +1,4 @@
-package secret
+package share
 
 import (
 	"bytes"
@@ -13,6 +13,13 @@ type EncryptedSlice struct {
 	Content []byte
 }
 
+// SplitThenEncrypt would do the following:
+// 1. Split the secret into n shares with shamir shares
+// 2. Encrypt each share with the provided key
+// 3. Return the encrypted shares
+//
+// secret is the data need to be encrypted; parts is the number of shares to be created; threshold is the minimum number of shares required to recover the secret;
+// publicKeys is the map, key is the id of owner, value is the public key
 func SplitThenEncrypt(secret []byte, parts int, threshold int, publicKeys map[string][]byte) ([]EncryptedSlice, error) {
 	if len(publicKeys) != parts {
 		return nil, errors.New("the number of public keys is not equal to the number of share parts")
@@ -56,6 +63,7 @@ func SplitThenEncrypt(secret []byte, parts int, threshold int, publicKeys map[st
 	return result, nil
 }
 
+// Combine would recover the secret from the encrypted shares and return the result.
 func Combine(shares [][]byte) ([]byte, error) {
 	combine, err := shamir.Combine(shares)
 	if err != nil {
