@@ -10,7 +10,11 @@ func NewCommitteeCommand(globalOptions *GlobalOptions) (*cobra.Command, error) {
 	}
 
 	// committee add
-	cmd.AddCommand(NewCommitteeAddCommand(globalOptions))
+	committeeAddCommand, err := NewCommitteeAddCommand(globalOptions)
+	if err != nil {
+		return nil, err
+	}
+	cmd.AddCommand(committeeAddCommand)
 	// committee get
 	cmd.AddCommand(NewCommitteeGetCommand(globalOptions))
 	// committee list

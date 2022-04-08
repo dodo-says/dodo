@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewCommitteeAddCommand(globalOptions *GlobalOptions) *cobra.Command {
+func NewCommitteeAddCommand(globalOptions *GlobalOptions) (*cobra.Command, error) {
 	options := NewCommitteeAddOptions("")
 
 	cmd := &cobra.Command{
@@ -46,8 +46,14 @@ dodo committee add "dodo-says"
 	}
 
 	cmd.Flags().StringVarP(&options.Description, "description", "d", "", "Optional description for this committee")
+	err := cmd.RegisterFlagCompletionFunc("description", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "register completion for flag %s", "description")
+	}
 
-	return cmd
+	return cmd, nil
 }
 
 // CommitteeAddOptions is the options for the committee add command.
