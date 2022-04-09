@@ -13,7 +13,13 @@ func NewRecordCommand(globalOptions *GlobalOptions) (*cobra.Command, error) {
 		return nil, err
 	}
 	cmd.AddCommand(recordAddCommand)
-	cmd.AddCommand(NewRecordListCommand(globalOptions))
+
+	recordListCommand, err := NewRecordListCommand(globalOptions)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd.AddCommand(recordListCommand)
 	cmd.AddCommand(NewRecordDecryptCommand(globalOptions))
 	cmd.AddCommand(NewRecordClearCommand(globalOptions))
 

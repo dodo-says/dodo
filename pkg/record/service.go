@@ -17,6 +17,7 @@ type Service interface {
 	GetRecord(ctx context.Context, id uuid.UUID) (Record, error)
 	DeleteRecord(ctx context.Context, recordID uuid.UUID) error
 	ListRecords(ctx context.Context) ([]Record, error)
+	ListRecordsByCommittee(ctx context.Context, committeeName string) ([]Record, error)
 
 	AddEncryptedRecordSlice(ctx context.Context, encryptedRecord EncryptedRecordSlice) error
 	GetEncryptedRecordSlicesByRecordID(ctx context.Context, recordID uuid.UUID) ([]EncryptedRecordSlice, error)
@@ -95,8 +96,33 @@ func (s *ServiceImpl) DeleteRecord(ctx context.Context, recordID uuid.UUID) erro
 }
 
 func (s *ServiceImpl) ListRecords(ctx context.Context) ([]Record, error) {
-	//TODO implement me
-	panic("implement me")
+	recordEntities, err := s.recordStorage.ListRecords(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "list records")
+	}
+	var records []Record
+	for _, recordEntity := range recordEntities {
+		records = append(records, Record{
+			ID:            recordEntity.ID,
+			Description:   recordEntity.Description,
+			CommitteeName: recordEntity.CommitteeName,
+			Threshold:     recordEntity.Threshold,
+		})
+	}
+	return records, nil
+}
+func (s *ServiceImpl) ListRecordsByCommittee(ctx context.Context, committeeName string) ([]Record, error) {
+	records, err := s.ListRecords(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "list records")
+	}
+	var result []Record
+	for _, record := range records {
+		if record.CommitteeName == committeeName {
+			result = append(result, record)
+		}
+	}
+	return result, nil
 }
 
 func (s *ServiceImpl) AddEncryptedRecordSlice(ctx context.Context, encryptedRecord EncryptedRecordSlice) error {
