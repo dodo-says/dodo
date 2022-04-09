@@ -22,12 +22,10 @@ cd try-dodo
 
 ### prepare key pair for several members
 
-```text
-ssh-keygen -m pem -N '' -C alice -f alice
-ssh-keygen -m pem -N '' -C bob -f bob
-ssh-keygen -m pem -N '' -C carol -f carol
-ssh-keygen -m pem -N '' -C dave -f dave
-ssh-keygen -m pem -N '' -C eve -f eve
+```bash
+for name in 'alice' 'bob' 'carol' 'dave' 'eve'; do
+    ssh-keygen -m pem -N '' -C $name -f $name
+done
 ```
 
 ### install `dodo`
@@ -46,20 +44,18 @@ dodo committee add --description "dodo's first committee" dodo
 
 ### Add the members into committee
 
-```text
-dodo committee-member add --committee-name dodo --public-key alice.pub alice
-dodo committee-member add --committee-name dodo --public-key bob.pub bob
-dodo committee-member add --committee-name dodo --public-key carol.pub carol
-dodo committee-member add --committee-name dodo --public-key dave.pub dave
-dodo committee-member add --committee-name dodo --public-key eve.pub eve
+```bash
+for name in 'alice' 'bob' 'carol' 'dave' 'eve'; do
+    dodo committee-member add --committee-name dodo --public-key $name.pub $name
+done
 ```
 
 ### ANYBODY (not only the committee members) could create a secret
 
-Someone (like me), create a new record with message "STRRL is a lazy guy". And it requires at least `5` (by `--threshold`)approval from the committee to decrypt this message.
+Someone (like me), create a new record with message "STRRL is a lazy guy". And it requires at least `4` (by `--threshold`)approval from the committee to decrypt this message.
 
 ```text
-dodo record add --committee-name dodo --message "STRRL is a lazy guy" --threshold 5
+dodo record add --committee-name dodo --message "STRRL is a lazy guy" --threshold 4
 ```
 
 ### ANYBODY (not only the committee members) could create a proposal to decrypt the secret
@@ -69,43 +65,51 @@ dodo record add --committee-name dodo --message "STRRL is a lazy guy" --threshol
 ```text
 ❯ dodo record list --committee-name dodo 
 ID      Description     Committee       Threshold
-22735228-f8fb-4691-b728-863bf5694210            dodo    5
+af84039a-6d08-49d7-8428-076b91639082            dodo    4
+
 
 ❯ dodo decrypt-proposal create --record-id 22735228-f8fb-4691-b728-863bf5694210 --reason "I think this message is dangerous" 
 
-❯ dodo decrypt-proposal list                                                      
+❯ dodo decrypt-proposal list                                                                                                
 ProposalID      RecordID        Reason
-b4b5f61d-43b9-41d3-bfab-f53497724fef    22735228-f8fb-4691-b728-863bf5694210    I think this message is dangerous
+49eef4c6-c62e-43c2-9747-f3eb79e98c5f    af84039a-6d08-49d7-8428-076b91639082    I think this message is dangerous
 
-❯ dodo decrypt-proposal inspect --proposal-id b4b5f61d-43b9-41d3-bfab-f53497724fef                                          
-Proposal ID: b4b5f61d-43b9-41d3-bfab-f53497724fef
+❯ dodo decrypt-proposal inspect --proposal-id 49eef4c6-c62e-43c2-9747-f3eb79e98c5f 
+Proposal ID: 49eef4c6-c62e-43c2-9747-f3eb79e98c5f
 Proposal Reason: I think this message is dangerous
-Record ID: 22735228-f8fb-4691-b728-863bf5694210
+Record ID: af84039a-6d08-49d7-8428-076b91639082
 Record Description: 
 Committee: dodo
 Approve Committee Members: 
 
-❯ dodo record decrypt --record-id 22735228-f8fb-4691-b728-863bf5694210 
+❯ dodo record decrypt --record-id af84039a-6d08-49d7-8428-076b91639082 
 No proposal has enough approvals, you should concat with other committee members for more approvals
 Available proposals:
-Proposal ID: b4b5f61d-43b9-41d3-bfab-f53497724fef, Reason: I think this message is dangerous, threshould: 5, approved members: 
-
+Proposal ID: 49eef4c6-c62e-43c2-9747-f3eb79e98c5f, Reason: I think this message is dangerous, threshould: 4, approved members: 
 ```
 
 ### Only committee members could approve the proposal
 
-```text
-dodo decrypt-proposal get-encrypted-slice --proposal-id b4b5f61d-43b9-41d3-bfab-f53497724fef --member-name alice | age -d -i ./alice | dodo decrypt-proposal approve --proposal-id b4b5f61d-43b9-41d3-bfab-f53497724fef
-dodo decrypt-proposal get-encrypted-slice --proposal-id b4b5f61d-43b9-41d3-bfab-f53497724fef --member-name bob | age -d -i ./bob | dodo decrypt-proposal approve --proposal-id b4b5f61d-43b9-41d3-bfab-f53497724fef
-dodo decrypt-proposal get-encrypted-slice --proposal-id b4b5f61d-43b9-41d3-bfab-f53497724fef --member-name carol | age -d -i ./carol | dodo decrypt-proposal approve --proposal-id b4b5f61d-43b9-41d3-bfab-f53497724fef
-dodo decrypt-proposal get-encrypted-slice --proposal-id b4b5f61d-43b9-41d3-bfab-f53497724fef --member-name dave | age -d -i ./dave | dodo decrypt-proposal approve --proposal-id b4b5f61d-43b9-41d3-bfab-f53497724fef
-dodo decrypt-proposal get-encrypted-slice --proposal-id b4b5f61d-43b9-41d3-bfab-f53497724fef --member-name eve | age -d -i ./eve | dodo decrypt-proposal approve --proposal-id b4b5f61d-43b9-41d3-bfab-f53497724fef
+```bash
+# notice that alice doesn't approve the proposal
+export PROPOSAL_ID=49eef4c6-c62e-43c2-9747-f3eb79e98c5f
+for name in 'bob' 'carol' 'dave' 'eve'; do
+    dodo decrypt-proposal get-encrypted-slice --proposal-id $PROPOSAL_ID --member-name $name | age -d -i ./$name | dodo decrypt-proposal approve --proposal-id $PROPOSAL_ID
+done
 ```
 
 ### After arrive the threshold, the record can be decrypted
 
 ```text
-❯ dodo record decrypt --record-id 22735228-f8fb-4691-b728-863bf5694210
+❯ dodo decrypt-proposal inspect --proposal-id 49eef4c6-c62e-43c2-9747-f3eb79e98c5f 
+Proposal ID: 49eef4c6-c62e-43c2-9747-f3eb79e98c5f
+Proposal Reason: I think this message is dangerous
+Record ID: af84039a-6d08-49d7-8428-076b91639082
+Record Description: 
+Committee: dodo
+Approve Committee Members: bob, carol, dave, eve
+
+❯ dodo record decrypt --record-id af84039a-6d08-49d7-8428-076b91639082 
 Decrypted record: STRRL is a lazy guy
 ```
 
