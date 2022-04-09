@@ -40,26 +40,33 @@ func (s *ServiceImpl) CreateDecryptProposal(ctx context.Context, proposal Decryp
 }
 
 func (s *ServiceImpl) ListDecryptProposal(ctx context.Context) ([]DecryptProposal, error) {
-	//TODO implement me
-	panic("implement me")
+	entities, err := s.proposalStorage.ListProposal(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "read proposal from storage")
+	}
+	proposals := make([]DecryptProposal, len(entities))
+	for i, entity := range entities {
+		proposals[i] = DecryptProposal{
+			ProposalID: entity.ProposalID,
+			RecordID:   entity.RecordID,
+			Reason:     entity.Reason,
+		}
+	}
+	return proposals, nil
 }
 
 func (s *ServiceImpl) ListDecryptProposalByRecordID(ctx context.Context, recordID uuid.UUID) ([]DecryptProposal, error) {
-	proposals, err := s.proposalStorage.ListProposal(ctx)
+	proposals, err := s.ListDecryptProposal(ctx)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to list proposal")
+		return nil, errors.Wrap(err, "list proposal")
 	}
-	var result []DecryptProposal
+	var filteredProposals []DecryptProposal
 	for _, proposal := range proposals {
 		if proposal.RecordID == recordID {
-			result = append(result, DecryptProposal{
-				ProposalID: proposal.ProposalID,
-				RecordID:   proposal.RecordID,
-				Reason:     proposal.Reason,
-			})
+			filteredProposals = append(filteredProposals, proposal)
 		}
 	}
-	return result, nil
+	return filteredProposals, nil
 }
 
 func (s *ServiceImpl) CreateDecryptProposalApproval(ctx context.Context, proposal DecryptProposalApproval) error {
