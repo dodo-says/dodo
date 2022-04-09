@@ -20,8 +20,9 @@ type Service interface {
 	ListRecordsByCommittee(ctx context.Context, committeeName string) ([]Record, error)
 
 	AddEncryptedRecordSlice(ctx context.Context, encryptedRecord EncryptedRecordSlice) error
-	GetEncryptedRecordSlicesByRecordID(ctx context.Context, recordID uuid.UUID) ([]EncryptedRecordSlice, error)
-	GetEncryptedRecordSliceByRecordIDAndMemberName(ctx context.Context, recordID uuid.UUID, memberName string) (EncryptedRecordSlice, error)
+	ListEncryptedRecordSlices(ctx context.Context) ([]EncryptedRecordSlice, error)
+	ListEncryptedRecordSlicesByRecordID(ctx context.Context, recordID uuid.UUID) ([]EncryptedRecordSlice, error)
+	ListEncryptedRecordSliceByRecordIDAndMemberName(ctx context.Context, recordID uuid.UUID, memberName string) (*EncryptedRecordSlice, error)
 
 	CombineRecord(ctx context.Context, recordID uuid.UUID, slices []DecryptedRecordSlice) (DecryptedRecord, error)
 }
@@ -138,14 +139,53 @@ func (s *ServiceImpl) AddEncryptedRecordSlice(ctx context.Context, encryptedReco
 	return nil
 }
 
-func (s *ServiceImpl) GetEncryptedRecordSlicesByRecordID(ctx context.Context, recordID uuid.UUID) ([]EncryptedRecordSlice, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *ServiceImpl) ListEncryptedRecordSlices(ctx context.Context) ([]EncryptedRecordSlice, error) {
+	slices, err := s.encryptedRecordSliceStorage.ListSlices(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "list encrypted record slices")
+	}
+	var result []EncryptedRecordSlice
+	for _, slice := range slices {
+		base64Decode, err := base64.StdEncoding.DecodeString(slice.ContentBase64)
+		if err != nil {
+			return nil, errors.Wrap(err, "decode encrypted record slice")
+		}
+		result = append(result, EncryptedRecordSlice{
+			ID:         slice.ID,
+			RecordID:   slice.RecordID,
+			MemberName: slice.MemberName,
+			Content:    base64Decode,
+		})
+	}
+	return result, nil
 }
 
-func (s *ServiceImpl) GetEncryptedRecordSliceByRecordIDAndMemberName(ctx context.Context, recordID uuid.UUID, memberName string) (EncryptedRecordSlice, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *ServiceImpl) ListEncryptedRecordSlicesByRecordID(ctx context.Context, recordID uuid.UUID) ([]EncryptedRecordSlice, error) {
+	slices, err := s.ListEncryptedRecordSlices(ctx)
+	if err != nil {
+		return nil, errors.Wrapf(err, "list encrypted record slices by record id %s", recordID)
+	}
+	var result []EncryptedRecordSlice
+	for _, slice := range slices {
+		if slice.RecordID == recordID {
+			result = append(result, slice)
+		}
+	}
+	return result, nil
+}
+
+func (s *ServiceImpl) ListEncryptedRecordSliceByRecordIDAndMemberName(ctx context.Context, recordID uuid.UUID, memberName string) (*EncryptedRecordSlice, error) {
+	slices, err := s.ListEncryptedRecordSlicesByRecordID(ctx, recordID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "list encrypted record slices by record id %s and member name %s", recordID, memberName)
+	}
+	for _, slice := range slices {
+		slice := slice
+		if slice.MemberName == memberName {
+			return &slice, nil
+		}
+	}
+	return nil, errors.Errorf("encrypted record slice not found, record id %s, member name %s", recordID, memberName)
 }
 
 func (s *ServiceImpl) CombineRecord(ctx context.Context, recordID uuid.UUID, slices []DecryptedRecordSlice) (DecryptedRecord, error) {
