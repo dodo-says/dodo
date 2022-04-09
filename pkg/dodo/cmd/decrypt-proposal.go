@@ -16,7 +16,13 @@ func NewDecryptProposalCommand(globalOptions *GlobalOptions) (*cobra.Command, er
 		return nil, err
 	}
 	cmd.AddCommand(proposalCreateCommand)
-	cmd.AddCommand(NewDecryptProposalApproveCommand(globalOptions))
+
+	proposalApproveCommand, err := NewDecryptProposalApproveCommand(globalOptions)
+	if err != nil {
+		return nil, err
+	}
+	cmd.AddCommand(proposalApproveCommand)
+
 	proposalInspectCommand, err := NewDecryptProposalInspectCommand(globalOptions)
 	if err != nil {
 		return nil, err

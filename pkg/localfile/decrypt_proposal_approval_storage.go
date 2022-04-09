@@ -49,3 +49,17 @@ func (s *DecryptProposalApprovalStorage) AddProposalApproval(ctx context.Context
 	storage.Data = append(storage.Data, proposal)
 	return s.storage.write(ctx, *storage)
 }
+func (s *DecryptProposalApprovalStorage) CleanupProposalApprovalByProposalIDAndMember(ctx context.Context, proposalID uuid.UUID, member string) error {
+	storage, err := s.storage.read(ctx)
+	if err != nil {
+		return err
+	}
+	var filtered []DecryptProposalApprovalEntity
+	for _, v := range storage.Data {
+		if v.ProposalID != proposalID || v.Member != member {
+			filtered = append(filtered, v)
+		}
+	}
+	storage.Data = filtered
+	return s.storage.write(ctx, *storage)
+}

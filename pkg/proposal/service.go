@@ -88,9 +88,21 @@ func (s *ServiceImpl) ListDecryptProposalByRecordID(ctx context.Context, recordI
 }
 
 func (s *ServiceImpl) CreateDecryptProposalApproval(ctx context.Context, proposal DecryptProposalApproval) error {
-	//TODO implement me
-	panic("implement me")
-
+	// it would replace the existed approval
+	entity := localfile.DecryptProposalApprovalEntity{
+		ProposalID:           proposal.ProposalID,
+		Member:               proposal.Member,
+		PlaintextSliceBase64: base64.StdEncoding.EncodeToString(proposal.PlaintextSlice),
+	}
+	err := s.proposalApprovalStorage.CleanupProposalApprovalByProposalIDAndMember(ctx, proposal.ProposalID, proposal.Member)
+	if err != nil {
+		return errors.Wrapf(err, "cleanup proposal approval by proposal id %s and member %s", proposal.ProposalID, proposal.Member)
+	}
+	err = s.proposalApprovalStorage.AddProposalApproval(ctx, entity)
+	if err != nil {
+		return errors.Wrap(err, "write proposal approval to storage")
+	}
+	return nil
 }
 
 func (s *ServiceImpl) ListDecryptProposalApproval(ctx context.Context) ([]DecryptProposalApproval, error) {
