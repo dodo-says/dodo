@@ -119,7 +119,7 @@ Approve Committee Members: bob, carol, dave, eve
 Decrypted record: STRRL is a lazy guy
 ```
 
-### purge the dodo's storage
+### purge the playground and dodo's storage
 
 ```text
 cd ../
