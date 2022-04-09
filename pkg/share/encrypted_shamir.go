@@ -8,8 +8,11 @@ import (
 	"github.com/pkg/errors"
 )
 
+// EncryptedSlice records the encrypted shamir share part for one.
 type EncryptedSlice struct {
-	Name    string
+	// Name is the owner of public key.
+	Name string
+	// Content is the encrypted shamir share part.
 	Content []byte
 }
 
