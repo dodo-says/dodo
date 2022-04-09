@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/base64"
 	"github.com/dodo-says/dodo/pkg/localfile"
+	"github.com/dodo-says/dodo/pkg/record"
+	"github.com/dodo-says/dodo/pkg/share"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
@@ -18,7 +20,7 @@ type Service interface {
 	ListDecryptProposalApproval(ctx context.Context) ([]DecryptProposalApproval, error)
 	ListDecryptProposalApprovalByProposalID(ctx context.Context, proposalID uuid.UUID) ([]DecryptProposalApproval, error)
 
-	DecryptTheRecord(ctx context.Context, proposal DecryptProposal, approvals []DecryptProposalApproval) (*DecryptedRecord, error)
+	DecryptTheRecord(ctx context.Context, record record.Record, proposal DecryptProposal, approvals []DecryptProposalApproval) (*DecryptedRecord, error)
 }
 
 type ServiceImpl struct {
@@ -125,8 +127,25 @@ func (s *ServiceImpl) ListDecryptProposalApprovalByProposalID(ctx context.Contex
 	return filteredApprovals, nil
 }
 
-func (s *ServiceImpl) DecryptTheRecord(ctx context.Context, proposal DecryptProposal, approvals []DecryptProposalApproval) (*DecryptedRecord, error) {
+func (s *ServiceImpl) DecryptTheRecord(ctx context.Context, record record.Record, proposal DecryptProposal, approvals []DecryptProposalApproval) (*DecryptedRecord, error) {
+	var slices [][]byte
+	for _, approval := range approvals {
+		slices = append(slices, approval.PlaintextSlice)
+	}
 
-	//TODO implement me
-	panic("implement me")
+	content, err := share.Combine(slices)
+	if err != nil {
+		return nil, errors.Wrapf(err, "combine slices for record %s, committee %s", record.ID, record.CommitteeName)
+	}
+
+	var approvedMembers []string
+	for _, approval := range approvals {
+		approvedMembers = append(approvedMembers, approval.Member)
+	}
+	return &DecryptedRecord{
+		Proposal:         proposal,
+		Record:           record,
+		PlaintextContent: content,
+		ApprovedMembers:  approvedMembers,
+	}, nil
 }

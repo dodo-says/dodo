@@ -20,7 +20,6 @@ type DecryptProposalApproval struct {
 type DecryptedRecord struct {
 	Proposal         DecryptProposal
 	Record           record.Record
-	CommitteeName    string
 	ApprovedMembers  []string
 	PlaintextContent []byte
 }

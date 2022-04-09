@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"strings"
 )
 
 func NewRecordDecryptCommand(globalOptions *GlobalOptions) (*cobra.Command, error) {
@@ -14,8 +15,11 @@ func NewRecordDecryptCommand(globalOptions *GlobalOptions) (*cobra.Command, erro
 	cmd := &cobra.Command{
 		Use:   "decrypt",
 		Short: "Decrypts a record",
+		Args:  cobra.NoArgs,
+		ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-
 			ctx := context.TODO()
 			recordUUID, err := uuid.Parse(options.RecordID)
 			if err != nil {
@@ -43,7 +47,7 @@ func NewRecordDecryptCommand(globalOptions *GlobalOptions) (*cobra.Command, erro
 				}
 
 				if len(proposalApprovals) > record.Threshold {
-					decryptedRecord, err := proposalService.DecryptTheRecord(ctx, proposal, proposalApprovals)
+					decryptedRecord, err := proposalService.DecryptTheRecord(ctx, *record, proposal, proposalApprovals)
 					if err != nil {
 						// best efforts, skip
 						continue
@@ -54,9 +58,19 @@ func NewRecordDecryptCommand(globalOptions *GlobalOptions) (*cobra.Command, erro
 				}
 			}
 
-			cmd.Println("No proposal has enough approvals, you could use ....")
+			cmd.Println("No proposal has enough approvals, you should concat with other committee members for more approvals")
+			cmd.Println("Available proposals:")
 			for _, proposal := range proposals {
-				cmd.Println(fmt.Sprintf("Proposal ID: %s, Reason: %s", proposal.ProposalID, proposal.Reason))
+				approvals, err := proposalService.ListDecryptProposalApprovalByProposalID(ctx, proposal.ProposalID)
+				if err != nil {
+					// best efforts, skip
+					continue
+				}
+				var approvedMembers []string
+				for _, approval := range approvals {
+					approvedMembers = append(approvedMembers, approval.Member)
+				}
+				cmd.Println(fmt.Sprintf("Proposal ID: %s, Reason: %s, threshould: %d, approved members: %s", proposal.ProposalID, proposal.Reason, record.Threshold, strings.Join(approvedMembers, ", ")))
 			}
 			return nil
 		},
