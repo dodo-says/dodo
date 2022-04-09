@@ -91,6 +91,16 @@ func (s *ServiceImpl) RemoveCommittee(ctx context.Context, committeeName string)
 }
 
 func (s *ServiceImpl) AddMemberToCommittee(ctx context.Context, committeeName string, member Member) error {
+	members, err := s.ListMemberOfCommittee(ctx, committeeName)
+	if err != nil {
+		return errors.Wrapf(err, "list member of committee %s", committeeName)
+	}
+	for _, m := range members {
+		if m.Name == member.Name {
+			return errors.Errorf("member %s already exist", member.Name)
+		}
+	}
+
 	base64edPubKey := base64.StdEncoding.EncodeToString(member.PublicKey)
 
 	entity := localfile.MemberEntity{
@@ -99,7 +109,7 @@ func (s *ServiceImpl) AddMemberToCommittee(ctx context.Context, committeeName st
 		CommitteeName:   committeeName,
 		PublicKeyBase64: base64edPubKey,
 	}
-	err := s.memberStorage.AddMember(ctx, entity)
+	err = s.memberStorage.AddMember(ctx, entity)
 	if err != nil {
 		return errors.Wrapf(err, "add member %s to committee %s", member.Name, committeeName)
 	}
