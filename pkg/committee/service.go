@@ -91,6 +91,22 @@ func (s *ServiceImpl) RemoveCommittee(ctx context.Context, committeeName string)
 }
 
 func (s *ServiceImpl) AddMemberToCommittee(ctx context.Context, committeeName string, member Member) error {
+	// committee must exist
+	committees, err := s.ListCommittee(ctx)
+	if err != nil {
+		return errors.Wrap(err, "list committee")
+	}
+	committeeExist := false
+	for _, c := range committees {
+		if c.Name == committeeName {
+			committeeExist = true
+			break
+		}
+	}
+	if !committeeExist {
+		return errors.Errorf("committee %s not found", committeeName)
+	}
+
 	members, err := s.ListMemberOfCommittee(ctx, committeeName)
 	if err != nil {
 		return errors.Wrapf(err, "list member of committee %s", committeeName)

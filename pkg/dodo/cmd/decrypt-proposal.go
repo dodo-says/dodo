@@ -35,5 +35,11 @@ func NewDecryptProposalCommand(globalOptions *GlobalOptions) (*cobra.Command, er
 	}
 	cmd.AddCommand(proposalListCommand)
 
+	recordGetEncryptedSliceCmd, err := NewDecryptProposalGetEncryptedSliceCmd(globalOptions)
+	if err != nil {
+		return nil, err
+	}
+	cmd.AddCommand(recordGetEncryptedSliceCmd)
+
 	return cmd, nil
 }

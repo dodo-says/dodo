@@ -2,6 +2,8 @@ package share
 
 import (
 	"bytes"
+	"encoding/base64"
+	"encoding/json"
 	"filippo.io/age"
 	"filippo.io/age/agessh"
 	"github.com/hashicorp/vault/shamir"
@@ -14,6 +16,13 @@ type EncryptedSlice struct {
 	Name string
 	// Content is the encrypted shamir share part.
 	Content []byte
+}
+
+type Payload struct {
+	// Name is the owner of public key.
+	MemberName string `json:"member_name"`
+	// SliceBase64 is the base64ed plaintext shamir share part.
+	SliceBase64 string `json:"slice_base64"`
 }
 
 // SplitThenEncrypt would do the following:
@@ -42,12 +51,22 @@ func SplitThenEncrypt(secret []byte, parts int, threshold int, publicKeys map[st
 			return nil, errors.Wrapf(err, "parse ssh public key for %s", name)
 		}
 
+		payload := Payload{
+			MemberName:  name,
+			SliceBase64: base64.StdEncoding.EncodeToString(slice),
+		}
+
+		jsonInBytes, err := json.Marshal(payload)
+		if err != nil {
+			return nil, errors.Wrapf(err, "marshal payload for %s", name)
+		}
+
 		var content bytes.Buffer
 		writeCloser, err := age.Encrypt(&content, recipient)
 		if err != nil {
 			return nil, errors.Wrapf(err, "prepare encrypt for %s", name)
 		}
-		_, err = writeCloser.Write(slice)
+		_, err = writeCloser.Write(jsonInBytes)
 		if err != nil {
 			return nil, errors.Wrapf(err, "encrypt slice for %s", name)
 		}

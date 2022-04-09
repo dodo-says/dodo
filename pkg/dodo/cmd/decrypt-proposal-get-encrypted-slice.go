@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewRecordGetEncryptedSliceCmd(globalOptions *GlobalOptions) (*cobra.Command, error) {
+func NewDecryptProposalGetEncryptedSliceCmd(globalOptions *GlobalOptions) (*cobra.Command, error) {
 	options := NewRecordGetEncryptedSliceOptions("", "", true)
 
 	cmd := &cobra.Command{
@@ -17,14 +17,21 @@ func NewRecordGetEncryptedSliceCmd(globalOptions *GlobalOptions) (*cobra.Command
 		Long:  `Get encrypted slice`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.TODO()
-			recordService := BootstrapRecordService(globalOptions.StorageDir)
-			recordUUID, err := uuid.Parse(options.RecordID)
+
+			proposalUUID, err := uuid.Parse(options.ProposalID)
 			if err != nil {
-				return errors.Wrapf(err, "prase record id %s", options.RecordID)
+				return errors.Wrapf(err, "invalid proposal id %s", options.ProposalID)
 			}
+			proposalService := BootstrapProposalService(globalOptions.StorageDir)
+			recordService := BootstrapRecordService(globalOptions.StorageDir)
+			proposal, err := proposalService.GetDecryptProposal(ctx, proposalUUID)
+			if err != nil {
+				return errors.Wrapf(err, "get proposal %s", options.ProposalID)
+			}
+			recordUUID := proposal.RecordID
 			slice, err := recordService.ListEncryptedRecordSliceByRecordIDAndMemberName(ctx, recordUUID, options.MemberName)
 			if err != nil {
-				return errors.Wrapf(err, "get encrypted slice, recordID: %s, memberName: %s", options.RecordID, options.MemberName)
+				return errors.Wrapf(err, "get encrypted slice, recordID: %s, memberName: %s", recordUUID, options.MemberName)
 			}
 			if options.Armored {
 				armoredWriter := armor.NewWriter(cmd.OutOrStdout())
@@ -46,29 +53,29 @@ func NewRecordGetEncryptedSliceCmd(globalOptions *GlobalOptions) (*cobra.Command
 		},
 	}
 
-	cmd.Flags().StringVarP(&options.RecordID, "record-id", "r", "", "record id")
+	cmd.Flags().StringVarP(&options.ProposalID, "proposal-id", "r", "", "proposal id")
 	cmd.Flags().StringVarP(&options.MemberName, "member-name", "m", "", "member name")
 	cmd.Flags().BoolVar(&options.Armored, "armored", true, "armored")
 
-	err := cmd.MarkFlagRequired("record-id")
+	err := cmd.MarkFlagRequired("proposal-id")
 	if err != nil {
-		return nil, errors.Wrapf(err, "mark flag %s required", "record-id")
+		return nil, errors.Wrapf(err, "mark flag %s required", "proposal-id")
 	}
 	err = cmd.MarkFlagRequired("member-name")
 	if err != nil {
 		return nil, errors.Wrapf(err, "mark flag %s required", "member-name")
 	}
 
-	err = cmd.RegisterFlagCompletionFunc("record-id", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+	err = cmd.RegisterFlagCompletionFunc("proposal-id", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		ctx := context.TODO()
-		recordService := BootstrapRecordService(globalOptions.StorageDir)
-		records, err := recordService.ListRecords(ctx)
+		proposalService := BootstrapProposalService(globalOptions.StorageDir)
+		proposals, err := proposalService.ListDecryptProposal(ctx)
 		if err != nil {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
 		var ids []string
-		for _, record := range records {
-			ids = append(ids, record.ID.String())
+		for _, proposal := range proposals {
+			ids = append(ids, proposal.ProposalID.String())
 		}
 		return ids, cobra.ShellCompDirectiveNoFileComp
 	})
@@ -77,13 +84,17 @@ func NewRecordGetEncryptedSliceCmd(globalOptions *GlobalOptions) (*cobra.Command
 	}
 	err = cmd.RegisterFlagCompletionFunc("member-name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		ctx := context.TODO()
-		recordService := BootstrapRecordService(globalOptions.StorageDir)
-		recordUUID, err := uuid.Parse(options.RecordID)
+		proposalUUID, err := uuid.Parse(options.ProposalID)
 		if err != nil {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
-
-		slices, err := recordService.ListEncryptedRecordSlicesByRecordID(ctx, recordUUID)
+		proposalService := BootstrapProposalService(globalOptions.StorageDir)
+		proposal, err := proposalService.GetDecryptProposal(ctx, proposalUUID)
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveNoFileComp
+		}
+		recordService := BootstrapRecordService(globalOptions.StorageDir)
+		slices, err := recordService.ListEncryptedRecordSlicesByRecordID(ctx, proposal.RecordID)
 		if err != nil {
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		}
@@ -98,11 +109,11 @@ func NewRecordGetEncryptedSliceCmd(globalOptions *GlobalOptions) (*cobra.Command
 }
 
 type RecordGetEncryptedSliceOptions struct {
-	RecordID   string
+	ProposalID string
 	MemberName string
 	Armored    bool
 }
 
-func NewRecordGetEncryptedSliceOptions(recordID string, memberName string, armored bool) *RecordGetEncryptedSliceOptions {
-	return &RecordGetEncryptedSliceOptions{RecordID: recordID, MemberName: memberName, Armored: armored}
+func NewRecordGetEncryptedSliceOptions(proposalID string, memberName string, armored bool) *RecordGetEncryptedSliceOptions {
+	return &RecordGetEncryptedSliceOptions{ProposalID: proposalID, MemberName: memberName, Armored: armored}
 }

@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"github.com/dodo-says/dodo/pkg/proposal"
+	"github.com/dodo-says/dodo/pkg/share"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -19,7 +22,7 @@ func NewDecryptProposalApproveCommand(globalOptions *GlobalOptions) (*cobra.Comm
 			return nil, cobra.ShellCompDirectiveNoFileComp
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-
+			ctx := context.TODO()
 			proposalUUID, err := uuid.Parse(options.ProposalID)
 			if err != nil {
 				return errors.Wrapf(err, "invalid proposal id: %s", options.ProposalID)
@@ -32,15 +35,26 @@ func NewDecryptProposalApproveCommand(globalOptions *GlobalOptions) (*cobra.Comm
 				return errors.Wrapf(err, "get proposal: %s", options.ProposalID)
 			}
 
-			ctx := context.TODO()
-			plaintext, err := ioutil.ReadAll(cmd.InOrStdin())
+			jsonInBytes, err := ioutil.ReadAll(cmd.InOrStdin())
+			payload := share.Payload{
+				MemberName:  "",
+				SliceBase64: "",
+			}
+			err = json.Unmarshal(jsonInBytes, &payload)
+			if err != nil {
+				return errors.Wrap(err, "unmarshal payload")
+			}
+			plaintextShamirSlice, err := base64.StdEncoding.DecodeString(payload.SliceBase64)
+			if err != nil {
+				return errors.Wrap(err, "decode slice")
+			}
 			if err != nil {
 				return errors.Wrap(err, "read plaintext slice from stdin")
 			}
 			err = proposalService.CreateDecryptProposalApproval(ctx, proposal.DecryptProposalApproval{
-				ProposalID:     uuid.UUID{},
-				Member:         "",
-				PlaintextSlice: plaintext,
+				ProposalID:     proposalUUID,
+				Member:         payload.MemberName,
+				PlaintextSlice: plaintextShamirSlice,
 			})
 			if err != nil {
 				return errors.Wrapf(err, "create proposal approval for proposal: %s", options.ProposalID)

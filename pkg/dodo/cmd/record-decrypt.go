@@ -46,7 +46,7 @@ func NewRecordDecryptCommand(globalOptions *GlobalOptions) (*cobra.Command, erro
 					continue
 				}
 
-				if len(proposalApprovals) > record.Threshold {
+				if len(proposalApprovals) >= record.Threshold {
 					decryptedRecord, err := proposalService.DecryptTheRecord(ctx, *record, proposal, proposalApprovals)
 					if err != nil {
 						// best efforts, skip

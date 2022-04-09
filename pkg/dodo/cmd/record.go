@@ -28,11 +28,5 @@ func NewRecordCommand(globalOptions *GlobalOptions) (*cobra.Command, error) {
 
 	cmd.AddCommand(NewRecordClearCommand(globalOptions))
 
-	recordGetEncryptedSliceCmd, err := NewRecordGetEncryptedSliceCmd(globalOptions)
-	if err != nil {
-		return nil, err
-	}
-	cmd.AddCommand(recordGetEncryptedSliceCmd)
-
 	return cmd, nil
 }
