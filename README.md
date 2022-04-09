@@ -96,6 +96,14 @@ Proposal ID: 49eef4c6-c62e-43c2-9747-f3eb79e98c5f, Reason: I think this message 
 
 ### Only committee members could approve the proposal
 
+It uses [age](https://github.com/FiloSottile/age) to decrypt the context with the SSH private key. age is an alternative to gpg, and could work with SSH keys.
+
+You could install age by:
+
+```bash
+go install filippo.io/age/cmd/...@latest
+```
+
 ```bash
 # notice that alice doesn't approve the proposal
 export PROPOSAL_ID=49eef4c6-c62e-43c2-9747-f3eb79e98c5f
