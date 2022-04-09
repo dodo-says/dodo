@@ -34,6 +34,12 @@ done
 go install github.com/dodo-says/dodo/cmd/dodo@master
 ```
 
+Thanks to [cobra](https://github.com/spf13/cobra), `dodo` provides completion for `bash`, `zsh`, `fish` and `powershell`, using completion would improve the experience, see:
+
+- `dodo completion bash --help`
+- `dodo completion zsh --help`
+- etc...
+
 ### Create a committee
 
 Committee is a group of participants who share the same secret.
