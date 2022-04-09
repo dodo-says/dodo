@@ -6,10 +6,10 @@ import (
 )
 
 type EncryptedRecordSliceEntity struct {
-	ID         uuid.UUID `json:"id"`
-	RecordID   uuid.UUID `json:"record_id"`
-	MemberName string    `json:"member_name"`
-	Content    []byte    `json:"content"`
+	ID            uuid.UUID `json:"id"`
+	RecordID      uuid.UUID `json:"record_id"`
+	MemberName    string    `json:"member_name"`
+	ContentBase64 string    `json:"content_base64"`
 }
 
 type encryptedRecordSliceStorageModel struct {

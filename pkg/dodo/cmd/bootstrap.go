@@ -26,7 +26,8 @@ func BootstrapCommitteeStorage(storageDir string) *localfile.CommitteeStorage {
 func BootstrapRecordService(storageDir string) record.Service {
 	recordStorage := BootstrapRecordStorage(storageDir)
 	encryptedRecordSliceStorage := BootstrapEncryptedRecordSliceStorage(storageDir)
-	return record.NewServiceImpl(recordStorage, encryptedRecordSliceStorage)
+	committeeService := BootstrapCommitteeService(storageDir)
+	return record.NewServiceImpl(recordStorage, encryptedRecordSliceStorage, committeeService)
 }
 
 func BootstrapRecordStorage(storageDir string) *localfile.RecordStorage {

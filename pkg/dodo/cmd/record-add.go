@@ -2,9 +2,6 @@ package cmd
 
 import (
 	"context"
-	"github.com/dodo-says/dodo/pkg/record"
-	"github.com/dodo-says/dodo/pkg/share"
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -30,46 +27,23 @@ dodo record add --committee-name dodo -t 3 --message "STRRL is a dodo" -d "STRRL
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.TODO()
 			recordService := BootstrapRecordService(globalOptions.StorageDir)
-			committeeService := BootstrapCommitteeService(globalOptions.StorageDir)
 
-			members, err := committeeService.ListMemberOfCommittee(ctx, options.CommitteeName)
+			record, slices, err := recordService.BuildRecord(ctx, options.Message, options.Description, options.CommitteeName, options.Threshold)
 			if err != nil {
-				return errors.Wrapf(err, "list members of committee %s", options.CommitteeName)
+				return errors.Wrapf(err, "build record for committee %s, description %s, threshold %d", options.CommitteeName, options.Description, options.Threshold)
 			}
-
-			publicKeys := make(map[string][]byte)
-			for _, member := range members {
-				publicKeys[member.Name] = member.PublicKey
-			}
-
-			encryptedSlices, err := share.SplitThenEncrypt([]byte(options.Message), len(members), options.Threshold, publicKeys)
+			err = recordService.AddRecord(ctx, *record)
 			if err != nil {
-				return errors.Wrap(err, "encrypt message")
+				return errors.Wrap(err, "save record")
 			}
 
-			recordId := uuid.New()
-
-			for _, slice := range encryptedSlices {
-				err = recordService.AddEncryptedRecordSlice(ctx, record.EncryptedRecordSlice{
-					ID:         uuid.New(),
-					RecordID:   recordId,
-					MemberName: slice.Name,
-					Content:    slice.Content,
-				})
+			for _, slice := range slices {
+				err = recordService.AddEncryptedRecordSlice(ctx, slice)
 				if err != nil {
-					return errors.Wrap(err, "save encrypted record slice")
+					return errors.Wrap(err, "save encrypted slice")
 				}
 			}
 
-			err = recordService.AddRecord(ctx, record.Record{
-				ID:            recordId,
-				Description:   options.Description,
-				CommitteeName: options.CommitteeName,
-				Threshold:     options.Threshold,
-			})
-			if err != nil {
-				return errors.Wrapf(err, "save record, description %s, committee %s, threshold %d", options.Description, options.CommitteeName, options.Threshold)
-			}
 			return nil
 		},
 	}
