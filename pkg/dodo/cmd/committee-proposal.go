@@ -8,10 +8,7 @@ func NewCommitteeProposalCommand(*GlobalOptions) *cobra.Command {
 		Short: "Committee proposal commands",
 	}
 
-	cmd.AddCommand(NewCommitteeProposalCreateCommand())
-	cmd.AddCommand(NewCommitteeProposalApproveCommand())
-	cmd.AddCommand(NewCommitteeProposalGetCommand())
-	cmd.AddCommand(NewCommitteeProposalListCommand())
+	cmd.AddCommand(NewCommitteeProposalDecryptApproveCommand())
 
 	return cmd
 }

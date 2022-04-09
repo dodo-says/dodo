@@ -4,9 +4,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewCommitteeProposalApproveCommand() *cobra.Command {
+func NewCommitteeProposalDecryptApproveCommand() *cobra.Command {
 	var cmd = &cobra.Command{
-		Use:   "approve",
+		Use:   "decrypt-approve",
 		Short: "Approve a proposal",
 		Run: func(cmd *cobra.Command, args []string) {
 		},
