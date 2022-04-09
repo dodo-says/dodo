@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"filippo.io/age/agessh"
 	"github.com/dodo-says/dodo/pkg/committee"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -23,6 +24,10 @@ dodo committee member --committee-name dodo-says --public-key ./alice.pub --desc
 			publicKeyContent, err := os.ReadFile(options.PublicKeyFilePath)
 			if err != nil {
 				return errors.Wrapf(err, "read public key file %s", options.PublicKeyFilePath)
+			}
+			_, err = agessh.ParseRecipient(string(publicKeyContent))
+			if err != nil {
+				return errors.Wrapf(err, "parse ssh public key file %s", options.PublicKeyFilePath)
 			}
 			memberName := args[0]
 			member := committee.Member{
