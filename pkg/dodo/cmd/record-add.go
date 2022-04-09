@@ -87,7 +87,7 @@ dodo record add --committee-name dodo -t 3 --message "STRRL is a dodo" -d "STRRL
 	if err != nil {
 		return nil, errors.Wrapf(err, "mark flag %s as required", "message")
 	}
-	err = cmd.MarkFlagDirname("threshold")
+	err = cmd.MarkFlagRequired("threshold")
 	if err != nil {
 		return nil, errors.Wrapf(err, "mark flag %s as dirname", "threshold")
 	}
