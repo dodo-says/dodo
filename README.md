@@ -96,7 +96,7 @@ Proposal ID: 49eef4c6-c62e-43c2-9747-f3eb79e98c5f, Reason: I think this message 
 
 ### Only committee members could approve the proposal
 
-It uses [age](https://github.com/FiloSottile/age) to decrypt the context with the SSH private key. age is an alternative to gpg, and could work with SSH keys.
+It uses [age](https://github.com/FiloSottile/age) to decrypt the content with the SSH private key. age is an alternative to gpg, and could work with SSH keys.
 
 You could install age by:
 
