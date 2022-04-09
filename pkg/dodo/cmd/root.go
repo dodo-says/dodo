@@ -34,7 +34,11 @@ func NewRootCommand() (*cobra.Command, error) {
 	rootCommand.AddCommand(NewCommitteeProposalCommand(globalOptions))
 
 	// dodo record
-	rootCommand.AddCommand(NewRecordCommand(globalOptions))
+	recordCommand, err := NewRecordCommand(globalOptions)
+	if err != nil {
+		return nil, err
+	}
+	rootCommand.AddCommand(recordCommand)
 
 	return rootCommand, nil
 }

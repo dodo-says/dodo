@@ -25,6 +25,10 @@ type ServiceImpl struct {
 	memberStorage    *localfile.CommitteeMemberStorage
 }
 
+func NewServiceImpl(committeeStorage *localfile.CommitteeStorage, memberStorage *localfile.CommitteeMemberStorage) *ServiceImpl {
+	return &ServiceImpl{committeeStorage: committeeStorage, memberStorage: memberStorage}
+}
+
 func (s *ServiceImpl) AddCommittee(ctx context.Context, committee Committee) error {
 	committees, err := s.committeeStorage.ListCommittee(ctx)
 	if err != nil {
@@ -132,8 +136,4 @@ func (s *ServiceImpl) RemoveMemberFromCommittee(ctx context.Context, committeeNa
 func (s *ServiceImpl) GetMemberOfCommittee(ctx context.Context, committeeName string, memberName string) (*Member, error) {
 	//TODO implement me
 	panic("implement me")
-}
-
-func NewServiceImpl(committeeStorage *localfile.CommitteeStorage, memberStorage *localfile.CommitteeMemberStorage) *ServiceImpl {
-	return &ServiceImpl{committeeStorage: committeeStorage, memberStorage: memberStorage}
 }
