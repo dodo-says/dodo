@@ -36,7 +36,7 @@ func NewRecordDecryptCommand(globalOptions *GlobalOptions) (*cobra.Command, erro
 				return errors.Wrapf(err, "list proposal by record id %s", recordUUID)
 			}
 			if len(proposals) == 0 {
-				cmd.Println("No proposal found, you could use ....")
+				cmd.Println("No proposal found, you could use \"dodo decrypt-proposal create\" to create one")
 				return nil
 			}
 			for _, proposal := range proposals {
