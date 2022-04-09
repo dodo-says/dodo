@@ -14,7 +14,7 @@ type Service interface {
 	BuildRecord(ctx context.Context, plainContent string, description string, committeeName string, threshold int) (*Record, []EncryptedRecordSlice, error)
 
 	AddRecord(ctx context.Context, record Record) error
-	GetRecord(ctx context.Context, id uuid.UUID) (Record, error)
+	GetRecord(ctx context.Context, id uuid.UUID) (*Record, error)
 	DeleteRecord(ctx context.Context, recordID uuid.UUID) error
 	ListRecords(ctx context.Context) ([]Record, error)
 	ListRecordsByCommittee(ctx context.Context, committeeName string) ([]Record, error)
@@ -23,8 +23,6 @@ type Service interface {
 	ListEncryptedRecordSlices(ctx context.Context) ([]EncryptedRecordSlice, error)
 	ListEncryptedRecordSlicesByRecordID(ctx context.Context, recordID uuid.UUID) ([]EncryptedRecordSlice, error)
 	ListEncryptedRecordSliceByRecordIDAndMemberName(ctx context.Context, recordID uuid.UUID, memberName string) (*EncryptedRecordSlice, error)
-
-	CombineRecord(ctx context.Context, recordID uuid.UUID, slices []DecryptedRecordSlice) (DecryptedRecord, error)
 }
 
 type ServiceImpl struct {
@@ -64,7 +62,6 @@ func (s *ServiceImpl) BuildRecord(ctx context.Context, plainContent string, desc
 	var slices []EncryptedRecordSlice
 	for _, encryptedSlice := range encryptedSlices {
 		slices = append(slices, EncryptedRecordSlice{
-			ID:         uuid.New(),
 			RecordID:   recordId,
 			MemberName: encryptedSlice.Name,
 			Content:    encryptedSlice.Content,
@@ -86,9 +83,17 @@ func (s *ServiceImpl) AddRecord(ctx context.Context, record Record) error {
 	return nil
 }
 
-func (s *ServiceImpl) GetRecord(ctx context.Context, id uuid.UUID) (Record, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *ServiceImpl) GetRecord(ctx context.Context, id uuid.UUID) (*Record, error) {
+	records, err := s.ListRecords(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "list records")
+	}
+	for _, record := range records {
+		if record.ID == id {
+			return &record, nil
+		}
+	}
+	return nil, errors.Errorf("record with id %s not found", id)
 }
 
 func (s *ServiceImpl) DeleteRecord(ctx context.Context, recordID uuid.UUID) error {
@@ -128,7 +133,6 @@ func (s *ServiceImpl) ListRecordsByCommittee(ctx context.Context, committeeName 
 
 func (s *ServiceImpl) AddEncryptedRecordSlice(ctx context.Context, encryptedRecord EncryptedRecordSlice) error {
 	err := s.encryptedRecordSliceStorage.AddSlice(ctx, localfile.EncryptedRecordSliceEntity{
-		ID:            encryptedRecord.ID,
 		RecordID:      encryptedRecord.RecordID,
 		MemberName:    encryptedRecord.MemberName,
 		ContentBase64: base64.StdEncoding.EncodeToString(encryptedRecord.Content),
@@ -151,7 +155,6 @@ func (s *ServiceImpl) ListEncryptedRecordSlices(ctx context.Context) ([]Encrypte
 			return nil, errors.Wrap(err, "decode encrypted record slice")
 		}
 		result = append(result, EncryptedRecordSlice{
-			ID:         slice.ID,
 			RecordID:   slice.RecordID,
 			MemberName: slice.MemberName,
 			Content:    base64Decode,
@@ -186,9 +189,4 @@ func (s *ServiceImpl) ListEncryptedRecordSliceByRecordIDAndMemberName(ctx contex
 		}
 	}
 	return nil, errors.Errorf("encrypted record slice not found, record id %s, member name %s", recordID, memberName)
-}
-
-func (s *ServiceImpl) CombineRecord(ctx context.Context, recordID uuid.UUID, slices []DecryptedRecordSlice) (DecryptedRecord, error) {
-	//TODO implement me
-	panic("implement me")
 }

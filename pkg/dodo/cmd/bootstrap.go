@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/dodo-says/dodo/pkg/committee"
 	"github.com/dodo-says/dodo/pkg/localfile"
+	"github.com/dodo-says/dodo/pkg/proposal"
 	"github.com/dodo-says/dodo/pkg/record"
 )
 
@@ -38,4 +39,20 @@ func BootstrapRecordStorage(storageDir string) *localfile.RecordStorage {
 func BootstrapEncryptedRecordSliceStorage(storageDir string) *localfile.EncryptedRecordSliceStorage {
 	encryptedRecordSliceStorage := localfile.NewEncryptedRecordSliceStorage(fmt.Sprintf("%s/%s", storageDir, "encrypted_record_slice.json"))
 	return encryptedRecordSliceStorage
+}
+
+func BootstrapProposalService(storageDir string) proposal.Service {
+	proposalStorage := BootstrapDecryptProposalStorage(storageDir)
+	proposalApprovalStorage := BootstrapDecryptProposalApprovalStorage(storageDir)
+	return proposal.NewServiceImpl(proposalStorage, proposalApprovalStorage)
+}
+
+func BootstrapDecryptProposalStorage(storageDir string) *localfile.DecryptProposalStorage {
+	decryptProposalStorage := localfile.NewDecryptProposalStorage(fmt.Sprintf("%s/%s", storageDir, "decrypt_proposal.json"))
+	return decryptProposalStorage
+}
+
+func BootstrapDecryptProposalApprovalStorage(storageDir string) *localfile.DecryptProposalApprovalStorage {
+	decryptProposalApprovalStorage := localfile.NewDecryptProposalApprovalStorage(fmt.Sprintf("%s/%s", storageDir, "decrypt_proposal_approval.json"))
+	return decryptProposalApprovalStorage
 }

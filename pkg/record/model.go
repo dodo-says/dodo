@@ -10,13 +10,6 @@ type Record struct {
 }
 
 type EncryptedRecordSlice struct {
-	ID         uuid.UUID
-	RecordID   uuid.UUID
-	MemberName string
-	Content    []byte
-}
-
-type DecryptedRecordSlice struct {
 	RecordID   uuid.UUID
 	MemberName string
 	Content    []byte
