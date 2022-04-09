@@ -9,6 +9,7 @@ import (
 
 type Service interface {
 	CreateDecryptProposal(ctx context.Context, proposal DecryptProposal) error
+	ListDecryptProposal(ctx context.Context) ([]DecryptProposal, error)
 	ListDecryptProposalByRecordID(ctx context.Context, recordID uuid.UUID) ([]DecryptProposal, error)
 
 	CreateDecryptProposalApproval(ctx context.Context, proposal DecryptProposalApproval) error
@@ -27,6 +28,18 @@ func NewServiceImpl(proposalStorage *localfile.DecryptProposalStorage, proposalA
 }
 
 func (s *ServiceImpl) CreateDecryptProposal(ctx context.Context, proposal DecryptProposal) error {
+	err := s.proposalStorage.AddProposal(ctx, localfile.DecryptProposalEntity{
+		ProposalID: proposal.ProposalID,
+		RecordID:   proposal.RecordID,
+		Reason:     proposal.Reason,
+	})
+	if err != nil {
+		return errors.Wrap(err, "write proposal to storage")
+	}
+	return nil
+}
+
+func (s *ServiceImpl) ListDecryptProposal(ctx context.Context) ([]DecryptProposal, error) {
 	//TODO implement me
 	panic("implement me")
 }
