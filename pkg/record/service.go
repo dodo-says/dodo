@@ -2,6 +2,7 @@ package record
 
 import (
 	"context"
+	"encoding/base64"
 	"github.com/dodo-says/dodo/pkg/committee"
 	"github.com/dodo-says/dodo/pkg/localfile"
 	"github.com/dodo-says/dodo/pkg/share"
@@ -71,8 +72,16 @@ func (s *ServiceImpl) BuildRecord(ctx context.Context, plainContent string, desc
 }
 
 func (s *ServiceImpl) AddRecord(ctx context.Context, record Record) error {
-	//TODO implement me
-	panic("implement me")
+	err := s.recordStorage.AddRecord(ctx, localfile.RecordEntity{
+		ID:            record.ID,
+		Description:   record.Description,
+		CommitteeName: record.CommitteeName,
+		Threshold:     record.Threshold,
+	})
+	if err != nil {
+		return errors.Wrap(err, "add record")
+	}
+	return nil
 }
 
 func (s *ServiceImpl) GetRecord(ctx context.Context, id uuid.UUID) (Record, error) {
@@ -91,8 +100,16 @@ func (s *ServiceImpl) ListRecords(ctx context.Context) ([]Record, error) {
 }
 
 func (s *ServiceImpl) AddEncryptedRecordSlice(ctx context.Context, encryptedRecord EncryptedRecordSlice) error {
-	//TODO implement me
-	panic("implement me")
+	err := s.encryptedRecordSliceStorage.AddSlice(ctx, localfile.EncryptedRecordSliceEntity{
+		ID:            encryptedRecord.ID,
+		RecordID:      encryptedRecord.RecordID,
+		MemberName:    encryptedRecord.MemberName,
+		ContentBase64: base64.StdEncoding.EncodeToString(encryptedRecord.Content),
+	})
+	if err != nil {
+		return errors.Wrap(err, "add encrypted record slice")
+	}
+	return nil
 }
 
 func (s *ServiceImpl) GetEncryptedRecordSlicesByRecordID(ctx context.Context, recordID uuid.UUID) ([]EncryptedRecordSlice, error) {

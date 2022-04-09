@@ -38,7 +38,7 @@ func (s *EncryptedRecordSliceStorage) ListSlices(ctx context.Context) ([]Encrypt
 	}
 	return storage.Data, nil
 }
-func (s *EncryptedRecordSliceStorage) AddRecord(ctx context.Context, slice EncryptedRecordSliceEntity) error {
+func (s *EncryptedRecordSliceStorage) AddSlice(ctx context.Context, slice EncryptedRecordSliceEntity) error {
 	storage, err := s.storage.read(ctx)
 	if err != nil {
 		return err
