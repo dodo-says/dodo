@@ -92,6 +92,40 @@ dodo record add --committee-name dodo -t 3 --message "STRRL is a dodo" -d "STRRL
 		return nil, errors.Wrapf(err, "mark flag %s as dirname", "threshold")
 	}
 
+	err = cmd.RegisterFlagCompletionFunc("description", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "register flag completion function for %s", "description")
+	}
+	err = cmd.RegisterFlagCompletionFunc("committee-name", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		ctx := context.TODO()
+		committeeService := BootstrapCommitteeService(globalOptions.StorageDir)
+		committees, err := committeeService.ListCommittee(ctx)
+		if err != nil {
+			return nil, cobra.ShellCompDirectiveError
+		}
+		var committeeNames []string
+		for _, item := range committees {
+			committeeNames = append(committeeNames, item.Name)
+		}
+		return committeeNames, cobra.ShellCompDirectiveNoFileComp
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "register flag completion function for %s", "committee-name")
+	}
+	err = cmd.RegisterFlagCompletionFunc("message", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "register flag completion function for %s", "message")
+	}
+	err = cmd.RegisterFlagCompletionFunc("threshold", func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
+		return nil, cobra.ShellCompDirectiveNoFileComp
+	})
+	if err != nil {
+		return nil, errors.Wrapf(err, "register flag completion function for %s", "threshold")
+	}
 	return cmd, nil
 }
 
