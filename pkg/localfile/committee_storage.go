@@ -3,8 +3,7 @@ package localfile
 import "context"
 
 type committeeStorageModel struct {
-	Length int               `json:"length"`
-	Data   []CommitteeEntity `json:"data"`
+	Data []CommitteeEntity `json:"data"`
 }
 
 type CommitteeEntity struct {
@@ -12,11 +11,11 @@ type CommitteeEntity struct {
 	Description string
 }
 
-func newCommitteeStorageModel(length int, data []CommitteeEntity) *committeeStorageModel {
-	return &committeeStorageModel{Length: length, Data: data}
+func newCommitteeStorageModel(data []CommitteeEntity) *committeeStorageModel {
+	return &committeeStorageModel{Data: data}
 }
 func zeroValueCommitteeStorageModel() *committeeStorageModel {
-	return newCommitteeStorageModel(0, []CommitteeEntity{})
+	return newCommitteeStorageModel([]CommitteeEntity{})
 }
 
 type CommitteeStorage struct {

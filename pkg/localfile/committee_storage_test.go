@@ -19,8 +19,7 @@ func TestLocalFileCommitteeStorage_write_then_read(t *testing.T) {
 			name: "empty",
 
 			want: &committeeStorageModel{
-				Length: 0,
-				Data:   []CommitteeEntity{},
+				Data: []CommitteeEntity{},
 			},
 			wantErr: false,
 		},
@@ -28,15 +27,13 @@ func TestLocalFileCommitteeStorage_write_then_read(t *testing.T) {
 			name: "empty with nil slice",
 
 			want: &committeeStorageModel{
-				Length: 0,
-				Data:   nil,
+				Data: nil,
 			},
 			wantErr: false,
 		},
 		{
 			name: "several",
 			want: &committeeStorageModel{
-				Length: 2,
 				Data: []CommitteeEntity{
 					{
 						Name:        "Alice",

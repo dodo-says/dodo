@@ -17,15 +17,14 @@ type MemberEntity struct {
 }
 
 type committeeMemberStorageModel struct {
-	Length int            `json:"length"`
-	Data   []MemberEntity `json:"data"`
+	Data []MemberEntity `json:"data"`
 }
 
-func newCommitteeMemberStorageModel(length int, data []MemberEntity) *committeeMemberStorageModel {
-	return &committeeMemberStorageModel{Length: length, Data: data}
+func newCommitteeMemberStorageModel(data []MemberEntity) *committeeMemberStorageModel {
+	return &committeeMemberStorageModel{Data: data}
 }
 func zeroValueCommitteeMemberStorageModel() *committeeMemberStorageModel {
-	return newCommitteeMemberStorageModel(0, []MemberEntity{})
+	return newCommitteeMemberStorageModel([]MemberEntity{})
 }
 
 type CommitteeMemberStorage struct {

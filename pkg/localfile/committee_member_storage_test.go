@@ -19,23 +19,20 @@ func TestLocalFileCommitteeMemberStorage_write_then_read(t *testing.T) {
 			name: "empty",
 
 			want: &committeeMemberStorageModel{
-				Length: 0,
-				Data:   []MemberEntity{},
+				Data: []MemberEntity{},
 			},
 			wantErr: false,
 		},
 		{
 			name: "empty with nil slice",
 			want: &committeeMemberStorageModel{
-				Length: 0,
-				Data:   nil,
+				Data: nil,
 			},
 			wantErr: false,
 		},
 		{
 			name: "several",
 			want: &committeeMemberStorageModel{
-				Length: 2,
 				Data: []MemberEntity{
 					{
 						Name:            "Alice",

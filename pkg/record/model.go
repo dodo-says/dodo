@@ -8,7 +8,6 @@ type Record struct {
 	Description   string
 	CommitteeName string
 	Threshold     int
-	Checksum      []byte
 }
 
 type EncryptedRecordSlice struct {
